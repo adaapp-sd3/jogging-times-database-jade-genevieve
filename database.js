@@ -5,15 +5,6 @@ var SQL = require('sql.js')
 var databaseFileBuffer = fs.readFileSync('./database.sqlite')
 var db = new SQL.Database(databaseFileBuffer)
 
-db.run(`
-  CREATE TABLE IF NOT EXISTS user (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    password_hash TEXT NOT NULL
-  );
-`)
-
 // sql.js won't save the database file. this is a hack to overwrite it every second.
 // if it's changed. in a normal database system this isn't needed.
 setInterval(() => {
