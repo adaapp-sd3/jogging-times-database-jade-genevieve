@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 
 const User = require('./models/User');
+const Jog = require('./models/Jog');
+
 
 const routes = new express.Router();
 
@@ -148,7 +150,9 @@ routes.post('/times/new', (req, res) => {
 
     console.log('create time', form);
 
-    // TODO: save the new time
+    // Done: save the new time
+    Jog.insert(req.cookies.userId, form.startTime, form.distance, form.duration);
+
 
     res.redirect('/times');
 });
