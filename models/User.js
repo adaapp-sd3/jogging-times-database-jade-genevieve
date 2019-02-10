@@ -1,41 +1,40 @@
-var { db, helpers } = require('../database')
+// eslint-disable-next-line no-unused-vars
+const { db, helpers } = require('../database');
 
 class User {
-  static insert(name, email, passwordHash) {
+    static insert(name, email, passwordHash) {
     // run the insert query
-    var userId = helpers.insertRow(
-      'INSERT INTO user (name, email, password_hash) VALUES (?, ?, ?)',
-      [name, email, passwordHash]
-    )
-    return userId
-  }
-
-  static findById(id) {
-    var row = helpers.getRow('SELECT * FROM user WHERE id = ?', [id])
-
-    if (row) {
-      return new User(row)
-    } else {
-      return null
+        const userId = helpers.insertRow(
+            'INSERT INTO user (name, email, password_hash) VALUES (?, ?, ?)',
+            [name, email, passwordHash],
+        );
+        return userId;
     }
-  }
 
-  static findByEmail(email) {
-    var row = helpers.getRow('SELECT * FROM user WHERE email = ?', [email])
+    static findById(id) {
+        const row = helpers.getRow('SELECT * FROM user WHERE id = ?', [id]);
 
-    if (row) {
-      return new User(row)
-    } else {
-      return null
+        if (row) {
+            return new User(row);
+        }
+        return null;
     }
-  }
 
-  constructor(databaseRow) {
-    this.id = databaseRow.id
-    this.name = databaseRow.name
-    this.email = databaseRow.email
-    this.passwordHash = databaseRow.password_hash
-  }
+    static findByEmail(email) {
+        const row = helpers.getRow('SELECT * FROM user WHERE email = ?', [email]);
+
+        if (row) {
+            return new User(row);
+        }
+        return null;
+    }
+
+    constructor(databaseRow) {
+        this.id = databaseRow.id;
+        this.name = databaseRow.name;
+        this.email = databaseRow.email;
+        this.passwordHash = databaseRow.password_hash;
+    }
 }
 
-module.exports = User
+module.exports = User;
