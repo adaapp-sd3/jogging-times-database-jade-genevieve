@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Jog Times - Edit Time</title>
+    <title>Jog Times - Edit Jog</title>
 
     <!-- Tailwind.css is a CSS library. Read the docs here: -->
     <!-- https://tailwindcss.com/docs/what-is-tailwind -->
@@ -33,7 +33,7 @@
         method="POST"
         action="/times/{{ time.id }}"
       >
-        <h1 class="text-2xl bg-grey-lighter p-4">Edit time</h1>
+        <h1 class="text-2xl bg-grey-lighter p-4">Edit a Jog</h1>
 
         <label class="m-4 block">
           Date
@@ -42,7 +42,7 @@
             type="datetime-local"
             name="startTime"
             value="{{ time.startTime }}"
-            required
+            required="required"
           />
         </label>
 
@@ -53,7 +53,8 @@
             type="number"
             name="distance"
             value="{{ time.distance }}"
-            required
+            required="required"
+            step="0.01"
           />
         </label>
 
@@ -64,7 +65,8 @@
             type="number"
             name="duration"
             value="{{ time.duration }}"
-            required
+            required="required"
+            step="0.01"
           />
         </label>
 
@@ -72,14 +74,14 @@
           type="submit"
           class="block w-auto rounded bg-purple text-white p-2 m-4 ml-auto"
         >
-          Create Time →
+          Save Changes →
         </button>
       </form>
       <a
         href="/times/{{ time.id }}/delete"
         class="block mt-8 text-red-light no-underline hover:underline"
       >
-        Delete time
+        Delete Jog
       </a>
     </main>
   </body>

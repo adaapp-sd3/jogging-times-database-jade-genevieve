@@ -159,12 +159,13 @@ routes.get('/times/:id', (req, res) => {
     const timeId = req.params.id;
     console.log('get time', timeId);
 
-    // TODO: get the real time for this id from the db
+    // Done: get the real time for this id from the db
+    const thisJog = Jog.findJogById(timeId);
     const jogTime = {
         id: timeId,
-        startTime: formatDateForHTML('2018-11-4 15:17'),
-        duration: 67.4,
-        distance: 44.43,
+        startTime: formatDateForHTML(thisJog.start_time),
+        duration: thisJog.duration,
+        distance: thisJog.distance,
     };
 
     res.render('edit-time.html', {
@@ -182,17 +183,19 @@ routes.post('/times/:id', (req, res) => {
         form,
     });
 
-    // TODO: edit the time in the db
+    // DOne: edit the time in the db
+    Jog.updateJogById(form.startTime, form.distance, form.duration, timeId);
 
     res.redirect('/times');
 });
 
-// handle deleteing the time
+// handle deleting the time
 routes.get('/times/:id/delete', (req, res) => {
     const timeId = req.params.id;
     console.log('delete time', timeId);
 
     // TODO: delete the time
+    Jog.deleteJog(timeId);
 
     res.redirect('/times');
 });

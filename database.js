@@ -56,6 +56,15 @@ const helpers = {
         helpers.runAndExpectNoRows(sqlString, bindings);
         return helpers.getRow('select last_insert_rowid() as id').id;
     },
+
+    // update a row
+    updateRow(sqlString, bindings) {
+        helpers.runAndExpectNoRows(sqlString, bindings);
+        if (!bindings) {
+            throw new Error('Could not find row');
+        }
+        return helpers.getRow('select last_insert_rowid() as id').id;
+    },
 };
 
 // export the database so we can use it elsewhere

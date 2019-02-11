@@ -11,6 +11,25 @@ class Jog {
         return jogId;
     }
 
+    static findJogById(id) {
+        const row = helpers.getRow('SELECT * FROM jog WHERE id = ?', [id]);
+
+        if (row) {
+            return row;
+        }
+        return null;
+    }
+
+
+    static findJogByUser(userId) {
+        const row = helpers.getRow('SELECT * FROM jog WHERE user_id = ?', [userId]);
+
+        if (row) {
+            return row.map(item => new Jog(item));
+        }
+        return null;
+    }
+
     static findJogsByUser(userId) {
         const row = helpers.getRows('SELECT * FROM jog WHERE user_id = ?', [userId]);
 
@@ -18,6 +37,14 @@ class Jog {
             return row.map(item => new Jog(item));
         }
         return null;
+    }
+
+    static updateJogById(startTime, distance, duration, id) {
+        const jogEdit = helpers.updateRow(
+            'UPDATE jog SET start_time = ?, distance = ?, duration = ?  WHERE id = ?',
+            [startTime, distance, duration, id],
+        );
+        return jogEdit;
     }
 
     // static someJogFinderThing(email) {
