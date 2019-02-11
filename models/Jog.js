@@ -11,11 +11,11 @@ class Jog {
         return jogId;
     }
 
-    static findJogsByUserId(userId) {
-        const row = helpers.getRow('SELECT * FROM user WHERE id = ?', [userId]);
+    static findJogsByUser(userId) {
+        const row = helpers.getRows('SELECT * FROM jog WHERE user_id = ?', [userId]);
 
         if (row) {
-            return new Jog(row);
+            return row.map(item => new Jog(item));
         }
         return null;
     }

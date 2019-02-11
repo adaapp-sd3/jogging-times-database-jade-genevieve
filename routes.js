@@ -13,7 +13,8 @@ function formatDateForHTML(date) {
     return new Date(date).toISOString().slice(0, -8);
 }
 
-// main page
+/** main page */
+
 routes.get('/', (req, res) => {
     if (req.cookies.userId) {
     // if we've got a user id, assume we're logged in and redirect to the app:
@@ -23,6 +24,9 @@ routes.get('/', (req, res) => {
         res.redirect('/sign-in');
     }
 });
+
+
+/** create account */
 
 // show the create account page
 routes.get('/create-account', (req, res) => {
@@ -47,6 +51,9 @@ routes.post('/create-account', (req, res) => {
     // redirect to the logged in page
     res.redirect('/times');
 });
+
+
+/** sign in */
 
 // show the sign-in page
 routes.get('/sign-in', (req, res) => {
@@ -90,14 +97,20 @@ routes.get('/sign-out', (req, res) => {
     res.redirect('/sign-in');
 });
 
-// list all job times
+
+/** list times */
+
+// list all times
 routes.get('/times', (req, res) => {
     const loggedInUser = User.findById(req.cookies.userId);
+    const userJogs = Jog.findJogsByUser(req.cookies.userId);
 
-    // fake stats - TODO: get real stats from the database
-    const totalDistance = 13.45;
-    const avgSpeed = 5.42;
-    const totalTime = 8.12322;
+    // Done: get real stats from the database
+    const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
+
+    const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
+
+    const avgSpeed = totalDistance / totalTime;
 
     res.render('list-times.html', {
         user: loggedInUser,
@@ -107,32 +120,13 @@ routes.get('/times', (req, res) => {
             avgSpeed: avgSpeed.toFixed(2),
         },
 
-        // fake times: TODO: get the real jog times from the db
-        times: [
-            {
-                id: 1,
-                startTime: '4:36pm 1/11/18',
-                duration: 12.23,
-                distance: 65.43,
-                avgSpeed: 5.34,
-            },
-            {
-                id: 2,
-                startTime: '2:10pm 3/11/18',
-                duration: 67.4,
-                distance: 44.43,
-                avgSpeed: 0.66,
-            },
-            {
-                id: 3,
-                startTime: '3:10pm 4/11/18',
-                duration: 67.4,
-                distance: 44.43,
-                avgSpeed: 0.66,
-            },
-        ],
+        // Done: get the real jog times from the db
+        times: userJogs,
     });
 });
+
+
+/** create time */
 
 // show the create time form
 routes.get('/times/new', (req, res) => {
@@ -156,6 +150,9 @@ routes.post('/times/new', (req, res) => {
 
     res.redirect('/times');
 });
+
+
+/** edit time */
 
 // show the edit time form for a specific time
 routes.get('/times/:id', (req, res) => {
