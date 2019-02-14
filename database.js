@@ -65,6 +65,16 @@ const helpers = {
         }
         return helpers.getRow('select last_insert_rowid() as id').id;
     },
+
+    deleteRow(sqlString, bindings) {
+        const statement = db.prepare(sqlString);
+        statement.bind(bindings);
+        while (statement.step()) {
+            statement.run();
+        }
+        statement.free();
+        return null;
+    },
 };
 
 // export the database so we can use it elsewhere

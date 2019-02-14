@@ -125,7 +125,6 @@ routes.get('/times', (req, res) => {
             startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
             avgSpeed: (jog.distance / jog.duration).toFixed(2),
         })),
-        // times: userJogs,
     });
 });
 
@@ -188,7 +187,7 @@ routes.post('/times/:id', (req, res) => {
     });
 
     // DOne: edit the time in the db
-    Jog.updateJogById(form.startTime, form.distance, form.duration, timeId);
+    Jog.updateJog(form.startTime, form.distance, form.duration, timeId);
 
     res.redirect('/times');
 });

@@ -39,12 +39,17 @@ class Jog {
         return null;
     }
 
-    static updateJogById(startTime, distance, duration, id) {
+    static updateJog(startTime, distance, duration, id) {
         const jogEdit = helpers.updateRow(
             'UPDATE jog SET start_time = ?, distance = ?, duration = ?  WHERE id = ?',
             [startTime, distance, duration, id],
         );
         return jogEdit;
+    }
+
+    static deleteJog(id) {
+        helpers.deleteRow('DELETE FROM jog WHERE id = ?', [id]);
+        return null;
     }
 
     // static someJogFinderThing(email) {
