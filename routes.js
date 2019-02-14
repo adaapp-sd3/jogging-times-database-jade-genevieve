@@ -104,7 +104,6 @@ routes.get('/sign-out', (req, res) => {
 routes.get('/times', (req, res) => {
     const loggedInUser = User.findById(req.cookies.userId);
     const userJogs = Jog.findJogsByUser(req.cookies.userId);
-
     // Done: get real stats from the database
     const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
 
@@ -121,7 +120,12 @@ routes.get('/times', (req, res) => {
         },
 
         // Done: get the real jog times from the db
-        times: userJogs,
+        times: userJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+        // times: userJogs,
     });
 });
 
