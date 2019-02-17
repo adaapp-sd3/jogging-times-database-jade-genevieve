@@ -37,7 +37,7 @@ routes.get('/create-account', (req, res) => {
 routes.post('/create-account', (req, res) => {
     const form = req.body;
 
-    // TODO: add some validation in here to check
+    // TODO: add some validation in here to check >.<;;
 
     // hash the password - we dont want to store it directly
     const passwordHash = bcrypt.hashSync(form.password, saltRounds);
@@ -52,6 +52,52 @@ routes.post('/create-account', (req, res) => {
     res.redirect('/times');
 });
 
+/** DONE: edit account */
+
+// show the edit account form for a specific id
+routes.get('/account/:id', (req, res) => {
+    const accountId = req.cookies.userId;
+    console.log('get account', accountId);
+
+    // get the real account for this id from the db
+    const thisAccount = User.findById(accountId);
+    const accountDeets = {
+        id: accountId,
+        name: thisAccount.name,
+        email: thisAccount.email,
+    };
+
+    res.render('edit-account.html', {
+        user: accountDeets,
+    });
+});
+
+// handle the edit account form
+routes.post('/account/:id', (req, res) => {
+    const accountId = req.cookies.userId;
+    const form = req.body;
+
+    console.log('edit account', {
+        accountId,
+        form,
+    });
+
+    // edit the account in the db
+    User.updateUser(form.name, form.email, accountId);
+
+    res.redirect('/times');
+});
+
+// handle deleting account
+routes.get('/account/:id/delete', (req, res) => {
+    const accountId = req.cookies.userId;
+    console.log('delete user', accountId);
+
+    // delete account and redirect
+    User.deleteUser(accountId);
+
+    res.redirect('/create-account');
+});
 
 /** sign in */
 
@@ -104,12 +150,13 @@ routes.get('/sign-out', (req, res) => {
 routes.get('/times', (req, res) => {
     const loggedInUser = User.findById(req.cookies.userId);
     const userJogs = Jog.findJogsByUser(req.cookies.userId);
+    const jogCount = Jog.getTotalJogCount(req.cookies.userId);
     // Done: get real stats from the database
     const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
 
     const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
 
-    const avgSpeed = totalDistance / totalTime;
+    const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
 
     res.render('list-times.html', {
         user: loggedInUser,
@@ -117,6 +164,7 @@ routes.get('/times', (req, res) => {
             totalDistance: totalDistance.toFixed(2),
             totalTime: totalTime.toFixed(2),
             avgSpeed: avgSpeed.toFixed(2),
+            totalJogs: jogCount,
         },
 
         // Done: get the real jog times from the db
@@ -197,7 +245,7 @@ routes.get('/times/:id/delete', (req, res) => {
     const timeId = req.params.id;
     console.log('delete time', timeId);
 
-    // TODO: delete the time
+    // Done: delete the time
     Jog.deleteJog(timeId);
 
     res.redirect('/times');

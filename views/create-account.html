@@ -10,47 +10,50 @@
   </head>
   <body>
     <main class="h-screen flex flex-col items-center justify-center ">
+        <div class="" style="background-image: url('http://i68.tinypic.com/14j6hox.jpg')" title="two joggers">
+        </div>
       <form
         class="m-4 shadow-lg rounded-lg overflow-hidden w-64"
         method="POST"
         action="/create-account"
       >
-        <h1 class="text-2xl bg-grey-lighter p-4">Create Account</h1>
+      <img src="http://i67.tinypic.com/312jl07.jpg" class="w-full" />
+        <span><h1 class="text-2xl pl-4 text-center text-blue uppercase font-mono font-bold">Create Account</h1></span>
 
-        <label class="m-4 block">
+        <label class="m-3 block text-center text-indigo-light">
           Name
           <input
-            class="block rounded bg-grey-lighter p-2 mt-2 w-full"
+            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
             type="text"
             name="name"
             required
           />
         </label>
 
-        <label class="m-4 block">
+        <label class="m-3 block text-center text-indigo-light">
           Email Address
           <input
-            class="block rounded bg-grey-lighter p-2 mt-2 w-full"
+            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
             type="email"
             name="email"
             required
           />
         </label>
 
-        <label class="m-4 block">
+        <label class="m-3 block text-center text-indigo-light">
           Password
           <input
-            class="block rounded bg-grey-lighter p-2 mt-2 w-full"
+            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
             type="password"
             name="password"
             required
           />
         </label>
 
-        <label class="m-4 block">
+        <label class="m-3 block text-center text-indigo-light">
           Confirm Password
           <input
-            class="block rounded bg-grey-lighter p-2 mt-2 w-full"
+            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
             type="password"
             name="passwordConfirm"
             required
@@ -59,16 +62,16 @@
 
         <button
           type="submit"
-          class="block w-auto rounded bg-purple text-white p-2 m-4 ml-auto"
+          class="block w-auto rounded bg-indigo text-white p-2 m-4 ml-auto"
         >
-          Create Account →
+          Go →
         </button>
       </form>
 
       <a
         href="/sign-in"
-        class="block mt-8 text-purple-light no-underline hover:underline"
-        >Sign in</a
+        class="block mt-8 text-blue no-underline hover:underline"
+        >Already have an account? Sign in</a
       >
     </main>
   </body>

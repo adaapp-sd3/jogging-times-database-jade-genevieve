@@ -9,17 +9,17 @@
     <link rel="stylesheet" href="/tailwind.css" />
   </head>
   <body class="bg-grey-lightest">
-    <header class="fixed pin-x pin-t bg-purple shadow text-white">
+    <header class="fixed pin-x pin-t bg-indigo shadow text-white">
       <div
         class="mx-auto h-16 p-4 flex items-center justify-between"
         style="width: 800px"
       >
         <h2>Jog Times</h2>
         <div>
-          Signed in as {{ user.name }} ({{ user.email }})
+          Hi {{ user.name }}! ({{ user.email }})
           <a
             href="/sign-out"
-            class="text-white border border-white rounded p-2 no-underline hover:bg-purple-light ml-4"
+            class="text-white border border-white rounded p-2 no-underline hover:bg-indigo-light ml-4"
           >
             Sign Out
           </a>
@@ -27,84 +27,160 @@
       </div>
     </header>
 
+    
+
     <main
       style="width: 800px"
       class="mx-auto mt-16 pt-4 flex flex-col justify-center "
     >
-      <section class="flex items-center">
-        <div
-          class="m-4 p-6 rounded-lg bg-white flex-1 shadow flex flex-col-reverse"
-        >
-          <h3 class="uppercase text-sm text-indigo-light font-semibold">
-            Total Distance
-          </h3>
-          <div class="text-5xl text-indigo font-semibold">
-            {{ stats.totalDistance }}
-            <span class="text-grey-dark uppercase text-base -ml-2">km</span>
-          </div>
-        </div>
 
-        <div
-          class="m-4 p-6 rounded-lg bg-white flex-1 shadow flex flex-col-reverse"
-        >
-          <h3 class="uppercase text-sm text-blue-light font-semibold">
-            Total Time
-          </h3>
-          <div class="text-5xl text-blue font-semibold">
-            {{ stats.totalTime }}
-            <span class="text-grey-dark uppercase text-base -ml-2">hrs</span>
-          </div>
-        </div>
 
-        <div
-          class="m-4 p-6 rounded-lg bg-white flex-1 shadow flex flex-col-reverse"
-        >
-          <h3 class="uppercase text-sm text-teal-light font-semibold">
-            Average Speed
-          </h3>
-          <div class="text-5xl text-teal font-semibold">
-            {{ stats.avgSpeed }}
-            <span class="text-grey-dark uppercase text-base -ml-2">km/h</span>
+
+    <section class="flex items-center">
+        <div class="bg-white mx-auto max-w-xs shadow-lg rounded-lg overflow-hidden">
+            <img src="http://i67.tinypic.com/312jl07.jpg" class="w-full" />
+            <div class="flex justify-center -mt-10">
+                <img src="http://i68.tinypic.com/2w6djeg.jpg" class="rounded-full h-24 -mt-4">		
+            </div>
+          <div class="text-center px-3 pb-6 pt-2">
+              <div class="text-5xl text-blue uppercase font-mono font-semibold">
+                  {{ user.name }}
+                  <span class="text-grey-dark uppercase text-base -ml-2">User #{{ user.id }}</span>
+                </div>
+                <h3 class="uppercase text-sm text-blue-light font-semibold">
+                    {{ user.email }}
+                  </h3>
+                  <div class="flex-auto mt-4">
+                    <a
+                  href="/account/{{ user.id }}"
+                  class="shadow rounded text-teal-light no-underline hover:shadow-inner p-2 "
+                >
+                  Account
+                </a></div>
           </div>
-        </div>
-      </section>
+            <div class="flex justify-center pb-3 mb-2 text-grey-dark">
+              <div class="text-center mr-3 border-r pr-3 hover:text-indigo  no-underline">
+                <h2>{{ stats.totalJogs }}</h2>
+                <span>Jogs</span>
+              </div>
+              <div class="text-center mr-3 border-r pr-3 hover:text-blue  no-underline">
+                  <h2>3</h2>
+                  <span>Followers</span>
+                </div>
+              <div class="text-center hover:text-teal no-underline">
+                <h2>4</h2>
+                <span>Following</span>
+              </div>
+            </div>
+          </div>
+          
+
+
+          <div class="bg-white mx-auto max-w-xs shadow-lg rounded-lg overflow-hidden">
+
+              <div class="flex justify-center pb-3 pt-4 text-grey-dark">
+                  <div class="text-center mr-3 border-r pr-3 pl-6">
+                      <h3 class="uppercase text-sm text-indigo-light font-semibold">
+                          Total Distance
+                        </h3>
+                        <div class="text-2xl p-2 text-indigo font-semibold">
+                          {{ stats.totalDistance }}
+                          <span class="text-grey-dark p-1 uppercase text-base -ml-2"> km</span>
+                        </div>
+                  </div>
+
+                  <div class="text-center mr-3 border-r pr-3">
+                      <h3 class="uppercase text-sm text-blue-light font-semibold">
+                          Total Time
+                        </h3>
+                        <div class="text-2xl p-2 text-blue font-semibold">
+                          {{ stats.totalTime }}
+                          <span class="text-grey-dark p-1 uppercase text-base -ml-2">hrs</span>
+                        </div>
+                    </div>
+
+                  <div class="text-center pr-6">
+                      <h3 class="uppercase text-sm text-teal-light font-semibold">
+                          Average Speed
+                        </h3>
+                        <div class="text-2xl p-2 text-teal font-semibold">
+                          {{ stats.avgSpeed }}
+                          <span class="text-grey-dark p-1 uppercase text-base -ml-2"> km/h</span>
+                        </div>
+                  </div>
+                </div>
+            
+      
+    <a
+          href="/times/new"
+          class="flex w-auto m-3 p-6 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-blue no-underline items-center justify-center text-center"
+        >
+          Add new jog
+        </a>
+        <a
+          href="/" 
+          class="flex-auto w-auto m-3 p-6 mb-0 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-teal no-underline flex items-center justify-center text-center"
+        >
+          Leaderboard
+        </a>
+        
+
+  <form class="w-full max-w-sm"
+        method="POST"
+        action="/">
+      <div class="flex flex-no-wrap items-stretch pb-2 w-full relative">
+        <input class="flex-auto w-4/5 m-3 p-5 bg-grey-lightest border-2 border-indigo-lightest hover:text-indigo-lighter focus:text-indigo-dark  rounded-lg text-xl text-indigo-lighter no-underline flex items-center justify-center text-center" 
+        type="text" name="searchUser" placeholder="Search Users..." >
+        <button class="w-1/5 rounded bg-indigo text-xl w-auto m-3 p-5 items items-center" type="submit">
+          🔍
+        </button>
+       
+      </div>
+    </form>
+</div>
+
+
+
+
+
+      </div>
+
+
+
+    </section>
+
+   
 
       <section
-        class="flex flex-wrap border border-grey-light border-l-0 border-r-0 border-b-0 mt-6 pt-6"
-      >
-        <a
-          href="/times/new"
-          class="flex-auto w-64 m-4 p-5 bg-purple-light shadow rounded-lg text-3xl text-white no-underline flex items-center justify-center text-center"
-        >
-          Add new time
-        </a>
+      class="flex flex-wrap items-center border border-grey-light border-l-0 border-r-0 border-b-0 m-6 p-6"
+    >
 
         {{#each times}}
         <a
-          class="flex-auto w-64 m-4 p-5 bg-white shadow rounded-lg text-black no-underline"
+          class=" m-4 p-5 inline shadow-lg shadow-indigo-lightest hover:shadow-inner rounded-lg text-indigo no-underline"
           href="/times/{{ id }}"
         >
-          <h3 class="text-grey-darker uppercase text-base font-normal">
+          <h3 class="text-grey-darker text-l uppercase text-base font-normal">
             {{ startTime }}
           </h3>
           <p class="text-xl mt-2">
             {{ distance }}
             <span
-              class="uppercase text-sm text-grey-darker font-semibold -ml-1"
+              class="uppercase text-xs text-grey-darker font-semibold -ml-1"
             >
               km
             </span>
             in {{ duration }}
             <span
-              class="uppercase text-sm text-grey-darker font-semibold -ml-1"
+              class="uppercase text-xs text-grey-darker font-semibold -ml-1"
             >
               hrs
             </span>
           </p>
-          <p class="text-xl mt-1">
-            Avg. speed: {{ avgSpeed }}
+          <p class="text-l mt-1">
+            Avg. spd: {{ avgSpeed }}
             <span
-              class="uppercase text-sm text-grey-darker font-semibold -ml-1"
+              class="uppercase text-xs text-grey-darker font-semibold -ml-1"
             >
               km/hr
             </span>

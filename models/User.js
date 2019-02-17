@@ -29,6 +29,19 @@ class User {
         return null;
     }
 
+    static updateUser(name, email, id) {
+        const accountEdit = helpers.updateRow(
+            'UPDATE user SET name = ?, email = ? WHERE id = ?',
+            [name, email, id],
+        );
+        return accountEdit;
+    }
+
+    static deleteUser(id) {
+        helpers.deleteRow('DELETE FROM user WHERE id = ?', [id]);
+        return null;
+    }
+
     constructor(databaseRow) {
         this.id = databaseRow.id;
         this.name = databaseRow.name;

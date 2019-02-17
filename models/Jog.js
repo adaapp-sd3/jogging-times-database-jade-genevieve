@@ -20,7 +20,6 @@ class Jog {
         return null;
     }
 
-
     static findJogByUser(userId) {
         const row = helpers.getRow('SELECT * FROM jog WHERE user_id = ?', [userId]);
 
@@ -39,6 +38,14 @@ class Jog {
         return null;
     }
 
+    static getTotalJogCount(userId) {
+        const totalJogs = helpers.getRows('SELECT COUNT(*) AS count FROM jog WHERE user_id = ?', [userId]);
+        const countValue = totalJogs[0].count;
+        const count = countValue;
+        console.log(count);
+        return count;
+    }
+
     static updateJog(startTime, distance, duration, id) {
         const jogEdit = helpers.updateRow(
             'UPDATE jog SET start_time = ?, distance = ?, duration = ?  WHERE id = ?',
@@ -51,15 +58,6 @@ class Jog {
         helpers.deleteRow('DELETE FROM jog WHERE id = ?', [id]);
         return null;
     }
-
-    // static someJogFinderThing(email) {
-    //     const row = helpers.getRow('SELECT * FROM user WHERE email = ?', [email]);
-
-    //     if (row) {
-    //         return new Jog(row);
-    //     }
-    //     return null;
-    // }
 
     constructor(databaseRow) {
         this.id = databaseRow.id;
