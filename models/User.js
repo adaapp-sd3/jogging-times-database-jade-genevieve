@@ -29,6 +29,15 @@ class User {
         return null;
     }
 
+    static findByName(name) {
+        const row = helpers.getRows('SELECT * FROM user WHERE name LIKE ?', [`%${name}%`]);
+
+        if (row) {
+            return row.map(item => new User(item));
+        }
+        return null;
+    }
+
     static updateUser(name, email, id) {
         const accountEdit = helpers.updateRow(
             'UPDATE user SET name = ?, email = ? WHERE id = ?',
@@ -39,6 +48,8 @@ class User {
 
     static deleteUser(id) {
         helpers.deleteRow('DELETE FROM user WHERE id = ?', [id]);
+        helpers.deleteRow('DELETE FROM jog WHERE user_id = ?', [id]);
+
         return null;
     }
 

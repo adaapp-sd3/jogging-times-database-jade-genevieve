@@ -203,7 +203,7 @@ routes.post('/times/new', (req, res) => {
 });
 
 
-/** edit time */
+/** EDIT TIME */
 
 // show the edit time form for a specific time
 routes.get('/times/:id', (req, res) => {
@@ -249,6 +249,102 @@ routes.get('/times/:id/delete', (req, res) => {
     Jog.deleteJog(timeId);
 
     res.redirect('/times');
+});
+
+/** TIMELINE */
+
+// show the timeline page
+routes.get('/timeline', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+
+    res.render('timeline.html', {
+        user: loggedInUser,
+    });
+});
+
+/** search users */
+routes.post('/timeline', (req, res) => {
+    const form = req.body;
+
+    // find the user searched for
+    const searchedUser = User.findByName(form.searchName);
+
+    // if the searchedUser exists...
+    if (searchedUser) {
+        console.log({ form, searchedUser });
+        console.log(searchedUser.id);
+        // reload page:
+        res.render('timeline.html', {
+            results: searchedUser.map(user => ({
+                ...user,
+                jogs: Jog.getTotalJogCount(user.id),
+            })),
+        });
+    } else {
+        // if the user doesn't exist
+        res.render('timeline.html', {
+            errorMessage: 'User doesn\'t exist',
+        });
+    }
+});
+
+
+// list searched users
+routes.get('/timeline', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const form = req.body;
+    const searchedUser = User.findByName(form.name);
+
+    res.render('timeline.html', {
+        loggedInUser,
+        result: searchedUser.name,
+
+    });
+});
+
+// view user page
+
+routes.get('/user-page/:id', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const account = User.findById(req.params.id);
+    const userJogs = Jog.findJogsByUser(req.params.id);
+    const jogCount = Jog.getTotalJogCount(req.params.id);
+    // get real stats from the database
+    const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
+
+    const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
+
+    const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
+
+
+    res.render('user-page.html', {
+        loggedInUser,
+        user: account,
+        stats: {
+            totalDistance: totalDistance.toFixed(2),
+            totalTime: totalTime.toFixed(2),
+            avgSpeed: avgSpeed.toFixed(2),
+            totalJogs: jogCount,
+        },
+
+        // get the real jog times from the db
+        times: userJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
+/** LEADERBOARD */
+
+// show the leaderboard page
+routes.get('/leaderboard', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+
+    res.render('leaderboard.html', {
+        loggedInUser,
+    });
 });
 
 module.exports = routes;

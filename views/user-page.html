@@ -14,9 +14,9 @@
         class="mx-auto h-16 p-4 flex items-center justify-between"
         style="width: 800px"
       >
-        <h2>Jog Times</h2>
+      <h2><a href="/times" class="text-white no-underline">Jog Times</a></h2>
         <div>
-          Hi {{ user.name }}! ({{ user.email }})
+          Hi {{ loggedInUser.name }}! ({{ loggedInUser.email }})
           <a
             href="/sign-out"
             class="text-white border border-white rounded p-2 no-underline hover:bg-indigo-light ml-4"
@@ -55,7 +55,7 @@
                   href="/account/{{ user.id }}"
                   class="shadow rounded text-teal-light no-underline hover:shadow-inner p-2 "
                 >
-                  Account
+                  FOLLOW
                 </a></div>
           </div>
             <div class="flex justify-center pb-3 mb-2 text-grey-dark">
@@ -112,13 +112,13 @@
             
       
     <a
-          href="/times/new"
+          href="/times"
           class="flex w-auto m-3 p-6 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-blue no-underline items-center justify-center text-center"
         >
-          Add new jog
+          Home
         </a>
         <a
-          href="/" 
+          href="/leaderboard" 
           class="flex-auto w-auto m-3 p-6 mb-0 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-teal no-underline flex items-center justify-center text-center"
         >
           Leaderboard
