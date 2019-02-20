@@ -31,45 +31,33 @@
       <form
         class="m-4 shadow-lg rounded-lg overflow-hidden w-64"
         method="POST"
-        action="/times/{{ time.id }}"
+        action="/account/{{ user.id }}"
       >
       <img src="http://i67.tinypic.com/312jl07.jpg" class="w-full" />
-        <span><h1 class="text-2xl pl-4 text-center text-blue uppercase font-mono font-bold">Edit Jog</h1></span>
+        <span><h1 class="text-2xl pl-4 text-center text-blue uppercase font-mono font-bold">Edit Account</h1></span>
 
-        <label class="m-4 block text-center text-indigo-light">
-          Date
-          <input
-            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
-            type="datetime-local"
-            name="startTime"
-            value="{{ time.startTime }}"
-            required="required"
-          />
-        </label>
-
-        <label class="m-4 block text-center text-indigo-light">
-          Distance (km)
-          <input
-            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
-            type="number"
-            name="distance"
-            value="{{ time.distance }}"
-            required="required"
-            step="0.01"
-          />
-        </label>
-
-        <label class="m-4 block text-center text-indigo-light">
-          Duration (hrs)
-          <input
-            class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
-            type="number"
-            name="duration"
-            value="{{ time.duration }}"
-            required="required"
-            step="0.01"
-          />
-        </label>
+        
+        <label class="m-3 block text-center text-indigo-light">
+                Name
+                <input
+                  class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
+                  type="text"
+                  name="name"
+                  value=" {{ user.name }}"
+                  required
+                />
+              </label>
+        
+              <label class="m-3 block text-center text-indigo-light">
+                    Email Address
+                    <input
+                      class="block text-indigo-dark rounded-lg bg-grey-lightest border-2 border-indigo-lightest p-2 mt-2 w-full"
+                      type="email"
+                      name="email"
+                      value=" {{ user.email }}"
+                      required
+                    />
+                  </label>
 
         <button
           type="submit"
@@ -78,11 +66,13 @@
           Save Changes →
         </button>
       </form>
+      
+      
       <a
-        href="/times/{{ time.id }}/delete"
+        href="/account/{{ user.id }}/delete"
         class="block mt-8 text-red-light no-underline hover:underline"
       >
-        Delete Jog
+        Delete Account
       </a>
     </main>
   </body>

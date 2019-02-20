@@ -1,199 +1,504 @@
-var express = require('express')
-var bcrypt = require('bcryptjs')
+const express = require('express');
+const bcrypt = require('bcryptjs');
 
-var User = require('./models/User')
+const User = require('./models/User');
+const Jog = require('./models/Jog');
+const Following = require('./models/Following');
 
-var routes = new express.Router()
 
-var saltRounds = 10
+const routes = new express.Router();
+
+const saltRounds = 10;
 
 function formatDateForHTML(date) {
-  return new Date(date).toISOString().slice(0, -8)
+    return new Date(date).toISOString().slice(0, -8);
 }
 
-// main page
-routes.get('/', function(req, res) {
-  if (req.cookies.userId) {
+/** main page */
+
+routes.get('/', (req, res) => {
+    if (req.cookies.userId) {
     // if we've got a user id, assume we're logged in and redirect to the app:
-    res.redirect('/times')
-  } else {
+        res.redirect('/times');
+    } else {
     // otherwise, redirect to login
-    res.redirect('/sign-in')
-  }
-})
+        res.redirect('/sign-in');
+    }
+});
+
+
+/** create account */
 
 // show the create account page
-routes.get('/create-account', function(req, res) {
-  res.render('create-account.html')
-})
+routes.get('/create-account', (req, res) => {
+    res.render('create-account.html');
+});
 
 // handle create account forms:
-routes.post('/create-account', function(req, res) {
-  var form = req.body
+routes.post('/create-account', (req, res) => {
+    const form = req.body;
 
-  // TODO: add some validation in here to check
+    // TODO: add some validation in here to check >.<;;
 
-  // hash the password - we dont want to store it directly
-  var passwordHash = bcrypt.hashSync(form.password, saltRounds)
+    // hash the password - we dont want to store it directly
+    const passwordHash = bcrypt.hashSync(form.password, saltRounds);
 
-  // create the user
-  var userId = User.insert(form.name, form.email, passwordHash)
+    // create the user
+    const userId = User.insert(form.name, form.email, passwordHash);
 
-  // set the userId as a cookie
-  res.cookie('userId', userId)
+    // set the userId as a cookie
+    res.cookie('userId', userId);
 
-  // redirect to the logged in page
-  res.redirect('/times')
-})
+    // redirect to the logged in page
+    res.redirect('/times');
+});
+
+/** DONE: edit account */
+
+// show the edit account form for a specific id
+routes.get('/account/:id', (req, res) => {
+    const accountId = req.cookies.userId;
+    console.log('get account', accountId);
+
+    // get the real account for this id from the db
+    const thisAccount = User.findById(accountId);
+    const accountDeets = {
+        id: accountId,
+        name: thisAccount.name,
+        email: thisAccount.email,
+    };
+
+    res.render('edit-account.html', {
+        user: accountDeets,
+    });
+});
+
+// handle the edit account form
+routes.post('/account/:id', (req, res) => {
+    const accountId = req.cookies.userId;
+    const form = req.body;
+
+    console.log('edit account', {
+        accountId,
+        form,
+    });
+
+    // edit the account in the db
+    User.updateUser(form.name, form.email, accountId);
+
+    res.redirect('/times');
+});
+
+// handle deleting account
+routes.get('/account/:id/delete', (req, res) => {
+    const accountId = req.cookies.userId;
+    console.log('delete user', accountId);
+
+    // delete account and redirect
+    User.deleteUser(accountId);
+
+    res.redirect('/create-account');
+});
+
+/** sign in */
 
 // show the sign-in page
-routes.get('/sign-in', function(req, res) {
-  res.render('sign-in.html')
-})
+routes.get('/sign-in', (req, res) => {
+    res.render('sign-in.html');
+});
 
-routes.post('/sign-in', function(req, res) {
-  var form = req.body
+routes.post('/sign-in', (req, res) => {
+    const form = req.body;
 
-  // find the user that's trying to log in
-  var user = User.findByEmail(form.email)
+    // find the user that's trying to log in
+    const user = User.findByEmail(form.email);
 
-  // if the user exists...
-  if (user) {
-    console.log({ form, user })
-    if (bcrypt.compareSync(form.password, user.passwordHash)) {
-      // the hashes match! set the log in cookie
-      res.cookie('userId', user.id)
-      // redirect to main app:
-      res.redirect('/times')
+    // if the user exists...
+    if (user) {
+        console.log({ form, user });
+        if (bcrypt.compareSync(form.password, user.passwordHash)) {
+            // the hashes match! set the log in cookie
+            res.cookie('userId', user.id);
+            // redirect to main app:
+            res.redirect('/times');
+        } else {
+            // if the username and password don't match, say so
+            res.render('sign-in.html', {
+                errorMessage: 'Email address and password do not match',
+            });
+        }
     } else {
-      // if the username and password don't match, say so
-      res.render('sign-in.html', {
-        errorMessage: 'Email address and password do not match'
-      })
-    }
-  } else {
     // if the user doesnt exist, say so
-    res.render('sign-in.html', {
-      errorMessage: 'No user with that email exists'
-    })
-  }
-})
+        res.render('sign-in.html', {
+            errorMessage: 'No user with that email exists',
+        });
+    }
+});
 
 // handle signing out
-routes.get('/sign-out', function(req, res) {
-  // clear the user id cookie
-  res.clearCookie('userId')
+routes.get('/sign-out', (req, res) => {
+    // clear the user id cookie
+    res.clearCookie('userId');
 
-  // redirect to the login screen
-  res.redirect('/sign-in')
-})
+    // redirect to the login screen
+    res.redirect('/sign-in');
+});
 
-// list all job times
-routes.get('/times', function(req, res) {
-  var loggedInUser = User.findById(req.cookies.userId)
 
-  // fake stats - TODO: get real stats from the database
-  var totalDistance = 13.45
-  var avgSpeed = 5.42
-  var totalTime = 8.12322
+/** list times */
 
-  res.render('list-times.html', {
-    user: loggedInUser,
-    stats: {
-      totalDistance: totalDistance.toFixed(2),
-      totalTime: totalTime.toFixed(2),
-      avgSpeed: avgSpeed.toFixed(2)
-    },
+// list all times
+routes.get('/times', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const userJogs = Jog.findJogsByUser(req.cookies.userId);
+    const followers = Following.countFollowers(req.cookies.userId);
+    const follows = Following.countFollowed(req.cookies.userId);
+    const jogCount = Jog.getTotalJogCount(req.cookies.userId);
+    // Done: get real stats from the database
+    const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
 
-    // fake times: TODO: get the real jog times from the db
-    times: [
-      {
-        id: 1,
-        startTime: '4:36pm 1/11/18',
-        duration: 12.23,
-        distance: 65.43,
-        avgSpeed: 5.34
-      },
-      {
-        id: 2,
-        startTime: '2:10pm 3/11/18',
-        duration: 67.4,
-        distance: 44.43,
-        avgSpeed: 0.66
-      },
-      {
-        id: 3,
-        startTime: '3:10pm 4/11/18',
-        duration: 67.4,
-        distance: 44.43,
-        avgSpeed: 0.66
-      }
-    ]
-  })
-})
+    const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
+
+    const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
+
+    res.render('list-times.html', {
+        user: loggedInUser,
+        stats: {
+            totalDistance: totalDistance.toFixed(2),
+            totalTime: totalTime.toFixed(2),
+            avgSpeed: avgSpeed.toFixed(2),
+            totalJogs: jogCount,
+            followers,
+            follows,
+        },
+
+        // Done: get the real jog times from the db
+        times: userJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
+
+/** create time */
 
 // show the create time form
-routes.get('/times/new', function(req, res) {
-  // this is hugely insecure. why?
-  var loggedInUser = User.findById(req.cookies.userId)
+routes.get('/times/new', (req, res) => {
+    // this is hugely insecure. why?
+    const loggedInUser = User.findById(req.cookies.userId);
 
-  res.render('create-time.html', {
-    user: loggedInUser
-  })
-})
+    res.render('create-time.html', {
+        user: loggedInUser,
+    });
+});
 
 // handle the create time form
-routes.post('/times/new', function(req, res) {
-  var form = req.body
+routes.post('/times/new', (req, res) => {
+    const form = req.body;
 
-  console.log('create time', form)
+    console.log('create time', form);
 
-  // TODO: save the new time
+    // Done: save the new time
+    Jog.insert(req.cookies.userId, form.startTime, form.distance, form.duration);
 
-  res.redirect('/times')
-})
+
+    res.redirect('/times');
+});
+
+
+/** EDIT TIME */
 
 // show the edit time form for a specific time
-routes.get('/times/:id', function(req, res) {
-  var timeId = req.params.id
-  console.log('get time', timeId)
+routes.get('/times/:id', (req, res) => {
+    const timeId = req.params.id;
+    console.log('get time', timeId);
 
-  // TODO: get the real time for this id from the db
-  var jogTime = {
-    id: timeId,
-    startTime: formatDateForHTML('2018-11-4 15:17'),
-    duration: 67.4,
-    distance: 44.43
-  }
+    // Done: get the real time for this id from the db
+    const thisJog = Jog.findJogById(timeId);
+    const jogTime = {
+        id: timeId,
+        startTime: formatDateForHTML(thisJog.start_time),
+        duration: thisJog.duration,
+        distance: thisJog.distance,
+    };
 
-  res.render('edit-time.html', {
-    time: jogTime
-  })
-})
+    res.render('edit-time.html', {
+        time: jogTime,
+    });
+});
 
 // handle the edit time form
-routes.post('/times/:id', function(req, res) {
-  var timeId = req.params.id
-  var form = req.body
+routes.post('/times/:id', (req, res) => {
+    const timeId = req.params.id;
+    const form = req.body;
 
-  console.log('edit time', {
-    timeId: timeId,
-    form: form
-  })
+    console.log('edit time', {
+        timeId,
+        form,
+    });
 
-  // TODO: edit the time in the db
+    // DOne: edit the time in the db
+    Jog.updateJog(form.startTime, form.distance, form.duration, timeId);
 
-  res.redirect('/times')
-})
+    res.redirect('/times');
+});
 
-// handle deleteing the time
-routes.get('/times/:id/delete', function(req, res) {
-  var timeId = req.params.id
-  console.log('delete time', timeId)
+// handle deleting the time
+routes.get('/times/:id/delete', (req, res) => {
+    const timeId = req.params.id;
+    console.log('delete time', timeId);
 
-  // TODO: delete the time
+    // Done: delete the time
+    Jog.deleteJog(timeId);
 
-  res.redirect('/times')
-})
+    res.redirect('/times');
+});
 
-module.exports = routes
+/** TIMELINE */
+
+// show the timeline page
+routes.get('/timeline', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+
+    res.render('timeline.html', {
+        user: loggedInUser,
+    });
+});
+
+routes.get('/timeline/followers', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const followerJogs = Jog.findJogsByFollowers(req.cookies.userId);
+    console.log(followerJogs);
+    console.log(followerJogs.name);
+
+    res.render('timeline.html', {
+        user: loggedInUser,
+        timeline: followerJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.start_time).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
+routes.get('/timeline/following', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const followedJogs = Jog.findJogsByFollowed(req.cookies.userId);
+    console.log(followedJogs);
+    console.log(followedJogs.name);
+
+    res.render('timeline.html', {
+        user: loggedInUser,
+        timeline: followedJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.start_time).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
+/** search users */
+routes.post('/timeline', (req, res) => {
+    const form = req.body;
+
+    // find the user searched for
+    const searchedUser = User.findByName(form.searchName);
+
+    // if the searchedUser exists...
+    if (searchedUser) {
+        console.log({ form, searchedUser });
+        console.log(searchedUser.id);
+        // reload page:
+        res.render('timeline.html', {
+            results: searchedUser.map(user => ({
+                ...user,
+                jogs: Jog.getTotalJogCount(user.id),
+            })),
+        });
+    } else {
+        // if the user doesn't exist
+        res.render('timeline.html', {
+            errorMessage: 'User doesn\'t exist', // not working
+        });
+    }
+});
+
+
+// list searched users
+routes.get('/timeline', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const form = req.body;
+    const searchedUser = User.findByName(form.name);
+
+    res.render('timeline.html', {
+        loggedInUser,
+        result: searchedUser.name,
+
+    });
+});
+
+// view user page
+
+routes.get('/user-page/:id', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const account = User.findById(req.params.id);
+    const userJogs = Jog.findJogsByUser(req.params.id);
+    const jogCount = Jog.getTotalJogCount(req.params.id);
+    const followers = Following.countFollowers(req.params.id);
+    const follows = Following.countFollowed(req.params.id);
+    // get real stats from the database
+    const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
+
+    const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
+
+    const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
+    // check if following exists
+    const followingExists = Following.findFollowing(loggedInUser.id, account.id);
+    let followButton = '';
+
+    if (loggedInUser.id === account.id) {
+        res.redirect('/times');
+    } else {
+    // follow or unfollow...
+        if (!followingExists) {
+            followButton = 'follow';
+        } else {
+            followButton = 'unfollow';
+        }
+
+        res.render('user-page.html', {
+            loggedInUser,
+            followButton,
+            user: account,
+            stats: {
+                totalDistance: totalDistance.toFixed(2),
+                totalTime: totalTime.toFixed(2),
+                avgSpeed: avgSpeed.toFixed(2),
+                totalJogs: jogCount,
+                followers,
+                follows,
+            },
+
+            // get the real jog times from the db
+            times: userJogs.map(jog => ({
+                ...jog,
+                startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
+                avgSpeed: (jog.distance / jog.duration).toFixed(2),
+            })),
+        });
+    }
+});
+
+// follow/unfollow user
+routes.post('/follow/:id', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const searchedUser = User.findById(req.params.id);
+    const userJogs = Jog.findJogsByUser(req.params.id);
+    const jogCount = Jog.getTotalJogCount(req.params.id);
+    const followers = Following.countFollowers(req.params.id);
+    const follows = Following.countFollowed(req.params.id);
+
+    // get real stats from the database
+    const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
+
+    const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
+
+    const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
+    // const isFollowing = true;
+
+    // check if following exists
+    const followingExists = Following.findFollowing(loggedInUser.id, searchedUser.id);
+    let followButton = '';
+
+    // follow or unfollow...
+    if (!followingExists) {
+        console.log(loggedInUser.id, followButton, searchedUser.id);
+        Following.followUser(loggedInUser.id, searchedUser.id);
+        followButton = 'unfollow';
+    } else {
+        console.log(loggedInUser.id, followButton, searchedUser.id);
+        Following.unfollowUser(loggedInUser.id, searchedUser.id);
+        followButton = 'follow';
+    }
+
+    res.render('user-page.html', {
+        loggedInUser,
+        user: searchedUser,
+        followButton,
+        stats: {
+            totalDistance: totalDistance.toFixed(2),
+            totalTime: totalTime.toFixed(2),
+            avgSpeed: avgSpeed.toFixed(2),
+            totalJogs: jogCount,
+            follows,
+            followers,
+        },
+
+        // get the real jog times from the db
+        times: userJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
+
+/** LEADERBOARD */
+
+// show the leaderboard page
+routes.get('/leaderboard', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const followerList = Following.findAllFollowers(req.cookies.userId);
+    const followerIds = followerList.map(follower => follower.id);
+    // const furthestDistance = Jog.findLongestDistance(followerIds);
+    // const mostTime = Jog.findMostTime(followerIds);
+    // const bestSpeed = Jog.findBestSpeed(followerIds);
+
+    console.log('ids', followerIds);
+    console.log('followerlist', followerList);
+
+
+    res.render('leaderboard.html', {
+        loggedInUser,
+        // furthestDistance,
+        // mostTime,
+        // bestSpeed,
+    });
+});
+
+
+// get follower/following list
+
+routes.get('/list/followers', (req, res) => {
+    const user = User.findById(req.cookies.userId);
+    // find followers
+    const getFollowers = Following.findAllFollowers(user.id);
+    console.log(getFollowers);
+
+    // reload page:
+    res.render('leaderboard.html', {
+        list: getFollowers.map(following => ({
+            ...following,
+        })),
+    });
+});
+
+routes.get('/list/following', (req, res) => {
+    const user = User.findById(req.cookies.userId);
+    // find followers
+    const getFollowed = Following.findAllFollowed(user.id);
+    console.log(getFollowed);
+
+    // reload page:
+    res.render('leaderboard.html', {
+        list: getFollowed.map(following => ({
+            ...following,
+        })),
+    });
+});
+
+
+module.exports = routes;
