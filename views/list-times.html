@@ -43,7 +43,7 @@
                 <img src="http://i68.tinypic.com/2w6djeg.jpg" class="rounded-full h-24 -mt-4">		
             </div>
           <div class="text-center px-3 pb-6 pt-2">
-              <div class="text-5xl text-blue uppercase font-mono font-semibold">
+              <div class="text-4xl text-blue uppercase font-mono font-semibold">
                   {{ user.name }}
                   <span class="text-grey-dark uppercase text-base -ml-2">User #{{ user.id }}</span>
                 </div>
@@ -63,14 +63,14 @@
                 <h2>{{ stats.totalJogs }}</h2>
                 <span>Jogs</span>
               </div>
-              <div class="text-center mr-3 border-r pr-3 hover:text-blue  no-underline">
-                  <h2>3</h2>
+              <a href="/list/followers" class="text-center text-grey-dark mr-3 border-r pr-3 hover:text-blue  no-underline">
+                  <h2>{{ stats.followers }}</h2>
                   <span>Followers</span>
-                </div>
-              <div class="text-center hover:text-teal no-underline">
-                <h2>4</h2>
+              </a>
+              <a href="/list/following" class="text-center text-grey-dark hover:text-teal no-underline">
+                <h2>{{ stats.follows }}</h2>
                 <span>Following</span>
-              </div>
+              </a>
             </div>
           </div>
           
@@ -118,7 +118,7 @@
           Add new jog
         </a>
         <a
-          href="/" 
+          href="/leaderboard" 
           class="flex-auto w-auto m-3 p-6 mb-0 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-teal no-underline flex items-center justify-center text-center"
         >
           Leaderboard

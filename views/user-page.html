@@ -51,12 +51,16 @@
                     {{ user.email }}
                   </h3>
                   <div class="flex-auto mt-4">
-                    <a
-                  href="/account/{{ user.id }}"
+                    <!-- <a
+                  href="/user-page/{{ user.id }}"
                   class="shadow rounded text-teal-light no-underline hover:shadow-inner p-2 "
                 >
                   FOLLOW
-                </a></div>
+                </a> -->
+                <form action="/follow/{{ user.id }}" method="POST">
+                    <button name="follow" value="follow" class="shadow rounded text-teal-light no-underline hover:shadow-inner p-2 ">{{ followButton }}</button>
+                </form>
+              </div>
           </div>
             <div class="flex justify-center pb-3 mb-2 text-grey-dark">
               <div class="text-center mr-3 border-r pr-3 hover:text-indigo  no-underline">
@@ -64,11 +68,11 @@
                 <span>Jogs</span>
               </div>
               <div class="text-center mr-3 border-r pr-3 hover:text-blue  no-underline">
-                  <h2>3</h2>
+                  <h2>{{ stats.followers }}</h2>
                   <span>Followers</span>
                 </div>
               <div class="text-center hover:text-teal no-underline">
-                <h2>4</h2>
+                <h2>{{ stats.follows }}</h2>
                 <span>Following</span>
               </div>
             </div>
@@ -149,9 +153,8 @@
     >
 
         {{#each times}}
-        <a
+        <div 
           class=" m-4 p-5 inline shadow-lg shadow-indigo-lightest hover:shadow-inner rounded-lg text-indigo no-underline"
-          href="/times/{{ id }}"
         >
           <h3 class="text-grey-darker text-l uppercase text-base font-normal">
             {{ startTime }}
@@ -178,7 +181,7 @@
               km/hr
             </span>
           </p>
-        </a>
+        </div>
         {{/each}}
       </section>
     </main>

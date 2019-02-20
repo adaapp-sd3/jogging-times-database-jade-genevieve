@@ -49,6 +49,8 @@ class User {
     static deleteUser(id) {
         helpers.deleteRow('DELETE FROM user WHERE id = ?', [id]);
         helpers.deleteRow('DELETE FROM jog WHERE user_id = ?', [id]);
+        helpers.deleteRow('DELETE FROM following WHERE follower OR followed = ?', [id]);
+
 
         return null;
     }

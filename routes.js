@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const User = require('./models/User');
 const Jog = require('./models/Jog');
+const Following = require('./models/Following');
 
 
 const routes = new express.Router();
@@ -150,6 +151,8 @@ routes.get('/sign-out', (req, res) => {
 routes.get('/times', (req, res) => {
     const loggedInUser = User.findById(req.cookies.userId);
     const userJogs = Jog.findJogsByUser(req.cookies.userId);
+    const followers = Following.countFollowers(req.cookies.userId);
+    const follows = Following.countFollowed(req.cookies.userId);
     const jogCount = Jog.getTotalJogCount(req.cookies.userId);
     // Done: get real stats from the database
     const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
@@ -165,6 +168,8 @@ routes.get('/times', (req, res) => {
             totalTime: totalTime.toFixed(2),
             avgSpeed: avgSpeed.toFixed(2),
             totalJogs: jogCount,
+            followers,
+            follows,
         },
 
         // Done: get the real jog times from the db
@@ -262,6 +267,38 @@ routes.get('/timeline', (req, res) => {
     });
 });
 
+routes.get('/timeline/followers', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const followerJogs = Jog.findJogsByFollowers(req.cookies.userId);
+    console.log(followerJogs);
+    console.log(followerJogs.name);
+
+    res.render('timeline.html', {
+        user: loggedInUser,
+        timeline: followerJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.start_time).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
+routes.get('/timeline/following', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const followedJogs = Jog.findJogsByFollowed(req.cookies.userId);
+    console.log(followedJogs);
+    console.log(followedJogs.name);
+
+    res.render('timeline.html', {
+        user: loggedInUser,
+        timeline: followedJogs.map(jog => ({
+            ...jog,
+            startTime: formatDateForHTML(jog.start_time).replace('T', ' '),
+            avgSpeed: (jog.distance / jog.duration).toFixed(2),
+        })),
+    });
+});
+
 /** search users */
 routes.post('/timeline', (req, res) => {
     const form = req.body;
@@ -283,7 +320,7 @@ routes.post('/timeline', (req, res) => {
     } else {
         // if the user doesn't exist
         res.render('timeline.html', {
-            errorMessage: 'User doesn\'t exist',
+            errorMessage: 'User doesn\'t exist', // not working
         });
     }
 });
@@ -309,22 +346,94 @@ routes.get('/user-page/:id', (req, res) => {
     const account = User.findById(req.params.id);
     const userJogs = Jog.findJogsByUser(req.params.id);
     const jogCount = Jog.getTotalJogCount(req.params.id);
+    const followers = Following.countFollowers(req.params.id);
+    const follows = Following.countFollowed(req.params.id);
     // get real stats from the database
     const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
 
     const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
 
     const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
+    // check if following exists
+    const followingExists = Following.findFollowing(loggedInUser.id, account.id);
+    let followButton = '';
 
+    if (loggedInUser.id === account.id) {
+        res.redirect('/times');
+    } else {
+    // follow or unfollow...
+        if (!followingExists) {
+            followButton = 'follow';
+        } else {
+            followButton = 'unfollow';
+        }
+
+        res.render('user-page.html', {
+            loggedInUser,
+            followButton,
+            user: account,
+            stats: {
+                totalDistance: totalDistance.toFixed(2),
+                totalTime: totalTime.toFixed(2),
+                avgSpeed: avgSpeed.toFixed(2),
+                totalJogs: jogCount,
+                followers,
+                follows,
+            },
+
+            // get the real jog times from the db
+            times: userJogs.map(jog => ({
+                ...jog,
+                startTime: formatDateForHTML(jog.startTime).replace('T', ' '),
+                avgSpeed: (jog.distance / jog.duration).toFixed(2),
+            })),
+        });
+    }
+});
+
+// follow/unfollow user
+routes.post('/follow/:id', (req, res) => {
+    const loggedInUser = User.findById(req.cookies.userId);
+    const searchedUser = User.findById(req.params.id);
+    const userJogs = Jog.findJogsByUser(req.params.id);
+    const jogCount = Jog.getTotalJogCount(req.params.id);
+    const followers = Following.countFollowers(req.params.id);
+    const follows = Following.countFollowed(req.params.id);
+
+    // get real stats from the database
+    const totalDistance = userJogs.reduce((total, current) => total + current.distance, 0);
+
+    const totalTime = userJogs.reduce((total, current) => total + current.duration, 0);
+
+    const avgSpeed = ((totalDistance / totalTime) || 0); // Fix NaN showing with no data.
+    // const isFollowing = true;
+
+    // check if following exists
+    const followingExists = Following.findFollowing(loggedInUser.id, searchedUser.id);
+    let followButton = '';
+
+    // follow or unfollow...
+    if (!followingExists) {
+        console.log(loggedInUser.id, followButton, searchedUser.id);
+        Following.followUser(loggedInUser.id, searchedUser.id);
+        followButton = 'unfollow';
+    } else {
+        console.log(loggedInUser.id, followButton, searchedUser.id);
+        Following.unfollowUser(loggedInUser.id, searchedUser.id);
+        followButton = 'follow';
+    }
 
     res.render('user-page.html', {
         loggedInUser,
-        user: account,
+        user: searchedUser,
+        followButton,
         stats: {
             totalDistance: totalDistance.toFixed(2),
             totalTime: totalTime.toFixed(2),
             avgSpeed: avgSpeed.toFixed(2),
             totalJogs: jogCount,
+            follows,
+            followers,
         },
 
         // get the real jog times from the db
@@ -336,15 +445,60 @@ routes.get('/user-page/:id', (req, res) => {
     });
 });
 
+
 /** LEADERBOARD */
 
 // show the leaderboard page
 routes.get('/leaderboard', (req, res) => {
     const loggedInUser = User.findById(req.cookies.userId);
+    const followerList = Following.findAllFollowers(req.cookies.userId);
+    const followerIds = followerList.map(follower => follower.id);
+    // const furthestDistance = Jog.findLongestDistance(followerIds);
+    // const mostTime = Jog.findMostTime(followerIds);
+    // const bestSpeed = Jog.findBestSpeed(followerIds);
+
+    console.log('ids', followerIds);
+    console.log('followerlist', followerList);
+
 
     res.render('leaderboard.html', {
         loggedInUser,
+        // furthestDistance,
+        // mostTime,
+        // bestSpeed,
     });
 });
+
+
+// get follower/following list
+
+routes.get('/list/followers', (req, res) => {
+    const user = User.findById(req.cookies.userId);
+    // find followers
+    const getFollowers = Following.findAllFollowers(user.id);
+    console.log(getFollowers);
+
+    // reload page:
+    res.render('leaderboard.html', {
+        list: getFollowers.map(following => ({
+            ...following,
+        })),
+    });
+});
+
+routes.get('/list/following', (req, res) => {
+    const user = User.findById(req.cookies.userId);
+    // find followers
+    const getFollowed = Following.findAllFollowed(user.id);
+    console.log(getFollowed);
+
+    // reload page:
+    res.render('leaderboard.html', {
+        list: getFollowed.map(following => ({
+            ...following,
+        })),
+    });
+});
+
 
 module.exports = routes;

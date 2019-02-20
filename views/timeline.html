@@ -93,13 +93,13 @@
             Everyone
           </div>
             <a
-                href="/times/new"
+                href="/timeline/followers"
                 class="flex w-2/5 m-3 p-6 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-teal no-underline items-center justify-center text-center"
             >
                 Followers
             </a>
             <a
-                href="/" 
+                href="/timeline/following" 
                 class="flex-auto w-2/5 m-3 p-6 bg-grey-lightest hover:shadow-inner shadow rounded-lg text-xl text-blue no-underline flex items-center justify-center text-center"
             >
                 Following
@@ -108,7 +108,7 @@
        </div> 
     </div>
 
-    {{#each results}}
+    {{#each timeline}}
         <a
           class=" m-4 p-5 w-full inline shadow-lg shadow-indigo-lightest hover:shadow-inner rounded-lg text-indigo no-underline"
           href="/user-page/{{ id }}"
@@ -118,20 +118,20 @@
             <span
             class="uppercase pin-r text-xs text-grey-darker font-semibold "
           >
-            time stamp
+            {{ startTime }}
           </span></h3>
           <p class="text-xl mt-2">
-            distance
+            {{ distance }} KM
             <span
               class="uppercase text-xs text-grey-darker font-semibold -ml-1"
             >
               in
             </span>
-            duration 
+            {{ duration }} HRS
             
           </p>
           <p class="text-l mt-1">
-            Avg. spd: averageSpd
+            Avg. spd: {{ avgSpeed }}
             <span
               class="uppercase text-xs text-grey-darker font-semibold -ml-1"
             >
@@ -140,7 +140,6 @@
           </p>
         </a>
         {{/each}}
-
     
       </section>
     </main>

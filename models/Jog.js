@@ -38,6 +38,24 @@ class Jog {
         return null;
     }
 
+    static findJogsByFollowers(userId) {
+        const row = helpers.getRows('SELECT user.name, jog.start_time, jog.distance, jog.duration FROM jog JOIN user ON user.id = jog.user_id JOIN following ON following.follower = user.id WHERE following.followed = ? ORDER BY jog.start_time DESC', [userId]);
+        if (row) {
+            console.log(row);
+            return row;
+        }
+        return null;
+    }
+
+    static findJogsByFollowed(userId) {
+        const row = helpers.getRows('SELECT user.name, jog.start_time, jog.distance, jog.duration FROM jog JOIN user ON user.id = jog.user_id JOIN following ON following.followed = user.id WHERE following.follower = ? ORDER BY jog.start_time DESC', [userId]);
+        if (row) {
+            console.log(row);
+            return row;
+        }
+        return null;
+    }
+
     static getTotalJogCount(userId) {
         const totalJogs = helpers.getRows('SELECT COUNT(*) AS count FROM jog WHERE user_id = ?', [userId]);
         const countValue = totalJogs[0].count;
@@ -53,6 +71,31 @@ class Jog {
         );
         return jogEdit;
     }
+
+    // TODO
+    // static findLongestDistance(idList) {
+    //     if (row) {
+    //         console.log(row);
+    //         return row;
+    //     }
+    //     return null;
+    // }
+
+    // static findMostTime(idList) {
+    //     if (row) {
+    //         console.log(row);
+    //         return row;
+    //     }
+    //     return null;
+    // }
+
+    // static findBestSpeed(idList) {
+    //     if (row) {
+    //         console.log(row);
+    //         return row;
+    //     }
+    //     return null;
+    // }
 
     static deleteJog(id) {
         helpers.deleteRow('DELETE FROM jog WHERE id = ?', [id]);
